@@ -2,19 +2,20 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>GlauWeb Instant</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       background-color: #F7F4E9;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      font-family: sans-serif;
+      padding: 20px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: #1e293b;
     }
 
@@ -22,48 +23,48 @@
       width: 100%;
       max-width: 480px;
       background: white;
-      border-radius: 2.5rem;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-      border: 4px solid #E4BAD4;
-      padding: 40px 40px 36px;
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.18);
+      border: 3px solid #E4BAD4;
+      padding: 36px 28px 32px;
       text-align: center;
     }
 
     .icon-wrapper {
-      width: 80px;
-      height: 80px;
+      width: 72px;
+      height: 72px;
       background-color: #C490D1;
-      border-radius: 1.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+      border-radius: 1.25rem;
+      box-shadow: 0 8px 16px rgba(196,144,209,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 28px;
+      margin: 0 auto 24px;
     }
 
     h1 {
-      font-size: 1.875rem;
+      font-size: clamp(1.6rem, 6vw, 2rem);
       font-weight: 900;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       letter-spacing: -0.025em;
     }
     h1 span { color: #C490D1; }
 
     .subtitle {
-      font-size: 0.875rem;
+      font-size: clamp(0.85rem, 3.5vw, 0.95rem);
       color: #64748b;
       font-weight: 500;
       margin-bottom: 24px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     textarea {
       width: 100%;
-      height: 140px;
+      height: 160px;
       border: 2px solid #E4BAD4;
       border-radius: 1rem;
-      padding: 12px 14px;
-      font-size: 0.8rem;
+      padding: 14px;
+      font-size: clamp(0.8rem, 3vw, 0.875rem);
       font-family: monospace;
       color: #1e293b;
       resize: vertical;
@@ -71,6 +72,7 @@
       transition: border-color 0.2s;
       background: #fdfbff;
       margin-bottom: 16px;
+      -webkit-appearance: none;
     }
     textarea:focus { border-color: #C490D1; }
     textarea::placeholder { color: #b0a0b8; }
@@ -84,16 +86,16 @@
     }
     .status-label {
       display: block;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 900;
       color: #C490D1;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
     .status-text {
       font-weight: 700;
-      font-size: 0.875rem;
+      font-size: clamp(0.8rem, 3vw, 0.875rem);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -104,23 +106,25 @@
       background-color: #C490D1;
       color: white;
       font-weight: 900;
-      padding: 16px;
+      padding: 18px 16px;
       border-radius: 1rem;
       box-shadow: 0 10px 20px -5px rgba(196,144,209,0.5);
       border: none;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: clamp(0.95rem, 4vw, 1.05rem);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       transition: background-color 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .btn:hover { background-color: #b37dc1; }
-    .btn:active { transform: scale(0.97); }
+    .btn:active { transform: scale(0.97); background-color: #a06db0; }
 
     .footer {
-      margin-top: 32px;
+      margin-top: 28px;
       opacity: 0.4;
     }
     .footer-line {
@@ -131,10 +135,10 @@
       border-radius: 9999px;
     }
     .footer p {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.01em;
     }
   </style>
 </head>
@@ -143,7 +147,7 @@
 <div class="card">
 
   <div class="icon-wrapper">
-    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none"
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none"
          viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
       <path stroke-linecap="round" stroke-linejoin="round"
             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -153,11 +157,11 @@
   <h1>GlauWeb <span>Instant</span></h1>
 
   <p class="subtitle">
-    Cole o código HTML abaixo e clique em salvar.<br/>
-    O arquivo será gerado e baixado automaticamente.
+    Cole o código HTML abaixo e toque em salvar.<br/>
+    O arquivo será baixado automaticamente.
   </p>
 
-  <textarea id="htmlInput" placeholder="Cole aqui o código HTML gerado pela IA (Ctrl+V)..."></textarea>
+  <textarea id="htmlInput" placeholder="Cole aqui o código HTML gerado pela IA..."></textarea>
 
   <div class="status-box">
     <span class="status-label">Status</span>
@@ -165,7 +169,7 @@
   </div>
 
   <button class="btn" onclick="processAndDownload()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
       <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
       <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
     </svg>
@@ -197,7 +201,6 @@
       return;
     }
 
-    // Tenta extrair nome a partir de <title> ou <h1>
     var fileName = 'index';
     var titleMatch =
       content.match(/<title[^>]*>(.*?)<\/title>/i) ||
