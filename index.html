@@ -20,12 +20,12 @@
 
     .card {
       width: 100%;
-      max-width: 448px;
+      max-width: 480px;
       background: white;
       border-radius: 2.5rem;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
       border: 4px solid #E4BAD4;
-      padding: 48px;
+      padding: 40px 40px 36px;
       text-align: center;
     }
 
@@ -38,40 +38,50 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 32px;
-    }
-
-    .icon-wrapper svg {
-      width: 40px;
-      height: 40px;
-      color: white;
+      margin: 0 auto 28px;
     }
 
     h1 {
       font-size: 1.875rem;
       font-weight: 900;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: -0.025em;
     }
-
     h1 span { color: #C490D1; }
 
     .subtitle {
       font-size: 0.875rem;
       color: #64748b;
       font-weight: 500;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
       line-height: 1.6;
     }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      border: 2px solid #E4BAD4;
+      border-radius: 1rem;
+      padding: 12px 14px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: #1e293b;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fdfbff;
+      margin-bottom: 16px;
+    }
+    textarea:focus { border-color: #C490D1; }
+    textarea::placeholder { color: #b0a0b8; }
 
     .status-box {
       background-color: rgba(246, 223, 235, 0.5);
       border: 2px solid rgba(228, 186, 212, 0.3);
       border-radius: 1rem;
-      padding: 16px;
-      margin-bottom: 32px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
     }
-
     .status-label {
       display: block;
       font-size: 10px;
@@ -79,45 +89,40 @@
       color: #C490D1;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
-
     .status-text {
       font-weight: 700;
       font-size: 0.875rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      padding: 0 8px;
     }
 
     .btn {
-      display: none;
       width: 100%;
       background-color: #C490D1;
       color: white;
       font-weight: 900;
       padding: 16px;
       border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 20px -5px rgba(196,144,209,0.5);
       border: none;
       cursor: pointer;
       font-size: 1rem;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       transition: background-color 0.2s, transform 0.1s;
     }
-
     .btn:hover { background-color: #b37dc1; }
-    .btn:active { transform: scale(0.95); }
-    .btn.visible { display: flex; }
+    .btn:active { transform: scale(0.97); }
 
     .footer {
-      margin-top: 48px;
+      margin-top: 32px;
       opacity: 0.4;
     }
-
     .footer-line {
       width: 32px;
       height: 4px;
@@ -125,7 +130,6 @@
       margin: 0 auto 8px;
       border-radius: 9999px;
     }
-
     .footer p {
       font-size: 10px;
       font-weight: 900;
@@ -138,10 +142,9 @@
 
 <div class="card">
 
-  <!-- Ícone -->
   <div class="icon-wrapper">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         stroke="white" stroke-width="2.5">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none"
+         viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
       <path stroke-linecap="round" stroke-linejoin="round"
             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
     </svg>
@@ -150,21 +153,23 @@
   <h1>GlauWeb <span>Instant</span></h1>
 
   <p class="subtitle">
-    Copie o código da IA e abra o app.<br/>
-    O arquivo será gerado e baixado sozinho.
+    Cole o código HTML abaixo e clique em salvar.<br/>
+    O arquivo será gerado e baixado automaticamente.
   </p>
+
+  <textarea id="htmlInput" placeholder="Cole aqui o código HTML gerado pela IA (Ctrl+V)..."></textarea>
 
   <div class="status-box">
     <span class="status-label">Status</span>
-    <p class="status-text" id="status">Iniciando...</p>
+    <p class="status-text" id="status">Aguardando código...</p>
   </div>
 
-  <button class="btn" id="pasteBtn" onclick="tryAutoRead()">
+  <button class="btn" onclick="processAndDownload()">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
       <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
       <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
     </svg>
-    COLAR E SALVAR AGORA
+    SALVAR COMO .HTML
   </button>
 
   <div class="footer">
@@ -175,51 +180,52 @@
 </div>
 
 <script>
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-  }
+  const textarea = document.getElementById('htmlInput');
+  const statusEl = document.getElementById('status');
 
-  function showButton() {
-    document.getElementById('pasteBtn').classList.add('visible');
-  }
+  textarea.addEventListener('input', function () {
+    const val = textarea.value.trim();
+    if (!val) {
+      statusEl.textContent = 'Aguardando código...';
+    } else {
+      statusEl.textContent = val.length + ' caracteres prontos para salvar.';
+    }
+  });
 
   function extractHTML(content) {
-    // 1. Tenta extrair bloco de código Markdown ```html ... ```
-    const markdownRegex = /```(?:html)?\s*([\s\S]*?)```/i;
-    const markdownMatch = content.match(markdownRegex);
+    var markdownRegex = /```(?:html)?\s*([\s\S]*?)```/i;
+    var markdownMatch = content.match(markdownRegex);
     if (markdownMatch && markdownMatch[1]) {
       return markdownMatch[1].trim();
     }
-
-    // 2. Pega o que estiver entre a primeira e a última tag HTML
-    const firstTag = content.indexOf('<');
-    const lastTag = content.lastIndexOf('>');
+    var firstTag = content.indexOf('<');
+    var lastTag  = content.lastIndexOf('>');
     if (firstTag !== -1 && lastTag !== -1 && lastTag > firstTag) {
       return content.substring(firstTag, lastTag + 1).trim();
     }
-
     return content;
   }
 
-  function processAndDownload(text) {
-    if (!text || text.trim() === '') {
-      setStatus('Área de transferência vazia.');
+  function processAndDownload() {
+    var raw = textarea.value;
+
+    if (!raw || raw.trim() === '') {
+      statusEl.textContent = 'Cole um código antes de salvar.';
+      textarea.focus();
       return;
     }
 
-    const cleanedHTML = extractHTML(text);
+    var cleanedHTML = extractHTML(raw);
 
     if (!cleanedHTML.includes('<')) {
-      setStatus('Nenhum código HTML identificado.');
-      showButton();
+      statusEl.textContent = 'Nenhum código HTML identificado.';
       return;
     }
 
-    // Nome do arquivo baseado em <title> ou <h1>
-    let fileName = 'index';
-    const titleMatch =
-      cleanedHTML.match(/<title>(.*?)<\/title>/i) ||
-      cleanedHTML.match(/<h1>(.*?)<\/h1>/i);
+    var fileName = 'index';
+    var titleMatch =
+      cleanedHTML.match(/<title[^>]*>(.*?)<\/title>/i) ||
+      cleanedHTML.match(/<h1[^>]*>(.*?)<\/h1>/i);
 
     if (titleMatch && titleMatch[1]) {
       fileName = titleMatch[1]
@@ -230,50 +236,26 @@
         .substring(0, 40);
     }
 
-    // Garante estrutura HTML5 completa se for apenas fragmento
-    let finalOutput = cleanedHTML;
+    var finalOutput = cleanedHTML;
     if (!cleanedHTML.toLowerCase().includes('<html')) {
-      finalOutput = `<!DOCTYPE html>\n<html lang="pt-br">\n<head>\n<meta charset="UTF-8">\n<title>${fileName}</title>\n<style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style>\n</head>\n<body>\n${cleanedHTML}\n</body>\n</html>`;
+      finalOutput = '<!DOCTYPE html>\n<html lang="pt-br">\n<head>\n<meta charset="UTF-8">\n<title>' + fileName + '</title>\n<style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style>\n</head>\n<body>\n' + cleanedHTML + '\n</body>\n</html>';
     }
 
     try {
-      const blob = new Blob([finalOutput], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${fileName}.html`;
+      var blob = new Blob([finalOutput], { type: 'text/html;charset=utf-8' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href     = url;
+      a.download = fileName + '.html';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-
-      setStatus(`Salvo com sucesso: ${fileName}.html ✅`);
-      showButton();
+      statusEl.textContent = 'Salvo com sucesso: ' + fileName + '.html ✅';
     } catch (err) {
-      setStatus('Erro ao gerar arquivo.');
-      showButton();
+      statusEl.textContent = 'Erro ao gerar o arquivo.';
     }
   }
-
-  async function tryAutoRead() {
-    try {
-      setStatus('Lendo área de transferência...');
-      const text = await navigator.clipboard.readText();
-      processAndDownload(text);
-    } catch (err) {
-      setStatus('Aguardando colagem... (Ctrl+V)');
-      showButton();
-    }
-  }
-
-  // Listener para Ctrl+V manual
-  window.addEventListener('paste', function(e) {
-    const text = e.clipboardData.getData('text');
-    processAndDownload(text);
-  });
-
-  // Tenta ler automaticamente ao abrir (com pequeno delay para foco)
-  setTimeout(() => tryAutoRead(), 800);
 </script>
 
 </body>
