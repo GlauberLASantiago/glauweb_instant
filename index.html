@@ -240,6 +240,28 @@
     textarea.focus();
   }
 
+  function ensureUTF8(content) {
+    // Se já tem meta charset, não faz nada
+    if (/meta\s+charset/i.test(content)) {
+      return content;
+    }
+
+    var charsetTag = '<meta charset="UTF-8">';
+
+    // Tenta injetar logo após <head>
+    if (/<head[^>]*>/i.test(content)) {
+      return content.replace(/(<head[^>]*>)/i, '$1\n  ' + charsetTag);
+    }
+
+    // Tenta injetar antes de qualquer outra tag no <head> implícito
+    if (/<html[^>]*>/i.test(content)) {
+      return content.replace(/(<html[^>]*>)/i, '$1\n<head>\n  ' + charsetTag + '\n</head>');
+    }
+
+    // Sem estrutura nenhuma: injeta no topo
+    return charsetTag + '\n' + content;
+  }
+
   function processAndDownload() {
     var content = textarea.value;
 
@@ -264,8 +286,10 @@
         .substring(0, 40) || 'index';
     }
 
+    var finalContent = ensureUTF8(content);
+
     try {
-      var blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+      var blob = new Blob([finalContent], { type: 'text/html;charset=utf-8' });
       var url  = URL.createObjectURL(blob);
       var a    = document.createElement('a');
       a.href     = url;
