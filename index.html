@@ -2,88 +2,112 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 /**
  * App: GlauWeb Instant Saver
- * Função: Detetar HTML no clipboard e salvar como ficheiro automaticamente.
- * Versão: Resiliente a bloqueios de segurança do navegador.
+ * Função: Detectar HTML no clipboard e salvar como um arquivo completo automaticamente.
+ * Versão: 2.1 - Localizada para Português do Brasil (PT-BR).
  */
 
 const App = () => {
-  const [status, setStatus] = useState('A iniciar...');
+  const [status, setStatus] = useState('Iniciando...');
   const [showButton, setShowButton] = useState(false);
 
-  // Função para processar o texto e disparar o download
+  // Função para processar o texto, formatar como HTML completo e disparar o download
   const handleHTMLContent = useCallback((text) => {
     if (!text || text.trim() === '') {
-      setStatus('Conteúdo vazio.');
+      setStatus('Área de transferência vazia.');
       return;
     }
 
-    // Verifica se o conteúdo parece ser HTML
-    if (!text.includes('<') || !text.includes('>')) {
-      setStatus('Conteúdo não parece ser HTML válido.');
+    // Verifica se há pelo menos um sinal de tag para considerar HTML básico
+    if (!text.includes('<')) {
+      setStatus('O conteúdo colado não parece conter código HTML.');
       return;
     }
 
-    // Tenta extrair o título do HTML
+    // 1. Tenta extrair o título para o nome do arquivo
+    let title = 'Documento';
     let fileName = 'index';
     const titleMatch = text.match(/<title>(.*?)<\/title>/i) || text.match(/<h1>(.*?)<\/h1>/i);
     
     if (titleMatch && titleMatch[1]) {
-      fileName = titleMatch[1]
-        .trim()
+      title = titleMatch[1].trim();
+      fileName = title
         .toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
         .replace(/[^a-z0-9]/gi, '_') 
         .substring(0, 50);
     }
 
-    if (!fileName) fileName = 'index';
+    // 2. Garante que o conteúdo é um documento HTML completo
+    let finalHTML = text;
+    const hasHtmlTag = text.toLowerCase().includes('<html');
+    
+    if (!hasHtmlTag) {
+      finalHTML = `<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; color: #333; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    ${text}
+</body>
+</html>`;
+    }
 
+    // 3. Executa o Download
     try {
-      const blob = new Blob([text], { type: 'text/html;charset=utf-8' });
+      const blob = new Blob([finalHTML], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${fileName}.html`;
+      link.download = `${fileName || 'index'}.html`;
       document.body.appendChild(link);
       link.click();
       
+      // Limpeza imediata
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
 
-      setStatus(`Salvo: ${fileName}.html ✅`);
+      setStatus(`Sucesso: ${fileName}.html salvo! ✅`);
     } catch (err) {
-      setStatus('Erro ao gerar o ficheiro.');
+      setStatus('Erro técnico ao gerar o arquivo.');
+      console.error(err);
     }
   }, []);
 
-  // Tenta ler via API (pode falhar por política de segurança)
+  // Tentativa de leitura automática (respeitando restrições do browser)
   const tryClipboardRead = async () => {
     try {
-      setStatus('A tentar ler automaticamente...');
+      setStatus('Lendo área de transferência...');
       const text = await navigator.clipboard.readText();
       handleHTMLContent(text);
     } catch (err) {
-      // Se falhar, pedimos interação manual
-      setStatus('Aguardando colagem... (Pressione Ctrl+V)');
+      // Falha comum: falta de foco ou permissão
+      setStatus('Aguardando... Pressione Ctrl+V para processar.');
       setShowButton(true);
     }
   };
 
-  // Efeito para capturar o "Paste" (Colar) manual e tentar o automático
+  // Listeners para interação manual e automática
   useEffect(() => {
     const handleGlobalPaste = (e) => {
+      // Captura o evento de colar (Ctrl+V)
       const pastedData = e.clipboardData.getData('text');
-      setStatus('Conteúdo colado detetado!');
+      setStatus('Código detectado e processando...');
       handleHTMLContent(pastedData);
     };
 
-    // Adiciona o listener de colagem global
     window.addEventListener('paste', handleGlobalPaste);
     
-    // Tenta ler automaticamente após um curto delay
+    // Tenta ler ao carregar (funciona se a aba já tiver foco)
     const timer = setTimeout(() => {
       tryClipboardRead();
-    }, 800);
+    }, 1000);
 
     return () => {
       window.removeEventListener('paste', handleGlobalPaste);
@@ -93,41 +117,47 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4E9] flex items-center justify-center p-6 font-sans">
-      <div className="max-w-sm w-full bg-white rounded-3xl shadow-xl border-2 border-[#E4BAD4] p-10 text-center">
+      <div className="max-w-md w-full bg-white rounded-[2rem] shadow-2xl border-4 border-[#E4BAD4] p-12 text-center">
         
-        <div className="mb-6 inline-flex items-center justify-center w-20 h-20 bg-[#C490D1] text-white rounded-2xl shadow-lg animate-pulse">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+        {/* Indicador Visual */}
+        <div className="mb-8 relative mx-auto w-24 h-24">
+          <div className="absolute inset-0 bg-[#C490D1] opacity-20 rounded-full animate-ping"></div>
+          <div className="relative flex items-center justify-center w-full h-full bg-[#C490D1] text-white rounded-3xl shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
         </div>
 
-        <h1 className="text-2xl font-black text-[#2D2830] mb-2">
+        <h1 className="text-3xl font-black text-[#2D2830] mb-3">
           GlauWeb <span className="text-[#C490D1]">Instant</span>
         </h1>
         
-        <p className="text-sm text-[#756D79] mb-8 font-semibold">
-          Se o download não iniciar sozinho, <span className="text-[#C490D1]">clique no botão</span> ou pressione <span className="text-[#C490D1]">Ctrl+V</span>.
+        <p className="text-sm text-[#756D79] mb-8 font-medium leading-relaxed">
+          Copie o código da IA e abra este app.<br/>O arquivo HTML será gerado e <span className="text-[#C490D1] font-bold">baixado automaticamente</span>.
         </p>
 
-        <div className="bg-[#F6DFEB] rounded-xl p-4 mb-8">
-          <p className="text-xs font-bold text-[#C490D1] uppercase tracking-widest mb-1">Status do Sistema</p>
-          <p className="text-[#2D2830] font-bold truncate">{status}</p>
+        <div className="bg-[#F6DFEB] border-2 border-[#E4BAD4] rounded-2xl p-5 mb-8">
+          <p className="text-[10px] font-black text-[#C490D1] uppercase tracking-[0.2em] mb-2">Estado do Processo</p>
+          <p className="text-[#2D2830] font-extrabold text-sm">{status}</p>
         </div>
 
         {showButton && (
           <button
             onClick={tryClipboardRead}
-            className="w-full bg-[#C490D1] hover:bg-[#b37dc1] text-white font-black py-4 px-6 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3"
+            className="group relative w-full bg-[#C490D1] hover:bg-[#b37dc1] text-white font-black py-5 px-8 rounded-2xl shadow-xl shadow-purple-100 transition-all active:scale-95 flex items-center justify-center gap-3 overflow-hidden"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            TENTAR COLAR AGORA
+            FORÇAR COLAGEM MANUAL
           </button>
         )}
 
-        <div className="mt-10 pt-6 border-t border-gray-100 opacity-50">
-          <p className="text-[10px] font-black text-[#E4BAD4] uppercase tracking-tighter">
+        <div className="mt-12 flex flex-col items-center gap-2 opacity-40">
+          <div className="h-1 w-12 bg-[#E4BAD4] rounded-full"></div>
+          <p className="text-[10px] font-black text-[#2D2830] uppercase tracking-widest">
             Prof. Glauber Santiago — UFSCar
           </p>
         </div>
