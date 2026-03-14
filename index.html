@@ -1,9 +1,197 @@
-const markdownMatch = content.match(markdownRegex);
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlauWeb Instant</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background-color: #F7F4E9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: sans-serif;
+      color: #1e293b;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 448px;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      border: 4px solid #E4BAD4;
+      padding: 48px;
+      text-align: center;
+    }
+
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background-color: #C490D1;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+    }
+
+    .icon-wrapper svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      letter-spacing: -0.025em;
+    }
+
+    h1 span { color: #C490D1; }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .status-box {
+      background-color: rgba(246, 223, 235, 0.5);
+      border: 2px solid rgba(228, 186, 212, 0.3);
+      border-radius: 1rem;
+      padding: 16px;
+      margin-bottom: 32px;
+    }
+
+    .status-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 900;
+      color: #C490D1;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .status-text {
+      font-weight: 700;
+      font-size: 0.875rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 8px;
+    }
+
+    .btn {
+      display: none;
+      width: 100%;
+      background-color: #C490D1;
+      color: white;
+      font-weight: 900;
+      padding: 16px;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { background-color: #b37dc1; }
+    .btn:active { transform: scale(0.95); }
+    .btn.visible { display: flex; }
+
+    .footer {
+      margin-top: 48px;
+      opacity: 0.4;
+    }
+
+    .footer-line {
+      width: 32px;
+      height: 4px;
+      background-color: #E4BAD4;
+      margin: 0 auto 8px;
+      border-radius: 9999px;
+    }
+
+    .footer p {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.025em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Ícone -->
+  <div class="icon-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         stroke="white" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+  </div>
+
+  <h1>GlauWeb <span>Instant</span></h1>
+
+  <p class="subtitle">
+    Copie o código da IA e abra o app.<br/>
+    O arquivo será gerado e baixado sozinho.
+  </p>
+
+  <div class="status-box">
+    <span class="status-label">Status</span>
+    <p class="status-text" id="status">Iniciando...</p>
+  </div>
+
+  <button class="btn" id="pasteBtn" onclick="tryAutoRead()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+      <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+    </svg>
+    COLAR E SALVAR AGORA
+  </button>
+
+  <div class="footer">
+    <div class="footer-line"></div>
+    <p>Prof. Glauber Santiago — UFSCar</p>
+  </div>
+
+</div>
+
+<script>
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+  }
+
+  function showButton() {
+    document.getElementById('pasteBtn').classList.add('visible');
+  }
+
+  function extractHTML(content) {
+    // 1. Tenta extrair bloco de código Markdown ```html ... ```
+    const markdownRegex = /```(?:html)?\s*([\s\S]*?)```/i;
+    const markdownMatch = content.match(markdownRegex);
     if (markdownMatch && markdownMatch[1]) {
       return markdownMatch[1].trim();
     }
 
-    // 2. Se não houver Markdown, pega o que estiver entre a primeira e a última tag
+    // 2. Pega o que estiver entre a primeira e a última tag HTML
     const firstTag = content.indexOf('<');
     const lastTag = content.lastIndexOf('>');
     if (firstTag !== -1 && lastTag !== -1 && lastTag > firstTag) {
@@ -11,10 +199,9 @@ const markdownMatch = content.match(markdownRegex);
     }
 
     return content;
-  };
+  }
 
-  // Função principal para processar e baixar o arquivo
-  const processAndDownload = useCallback((text) => {
+  function processAndDownload(text) {
     if (!text || text.trim() === '') {
       setStatus('Área de transferência vazia.');
       return;
@@ -24,30 +211,31 @@ const markdownMatch = content.match(markdownRegex);
 
     if (!cleanedHTML.includes('<')) {
       setStatus('Nenhum código HTML identificado.');
-      setShowButton(true);
+      showButton();
       return;
     }
 
-    // Determina o nome do arquivo com base no <title> ou <h1>
+    // Nome do arquivo baseado em <title> ou <h1>
     let fileName = 'index';
-    const titleMatch = cleanedHTML.match(/<title>(.*?)<\/title>/i) || cleanedHTML.match(/<h1>(.*?)<\/h1>/i);
-    
+    const titleMatch =
+      cleanedHTML.match(/<title>(.*?)<\/title>/i) ||
+      cleanedHTML.match(/<h1>(.*?)<\/h1>/i);
+
     if (titleMatch && titleMatch[1]) {
       fileName = titleMatch[1]
         .trim()
         .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentos
-        .replace(/[^a-z0-9]/gi, '_') // Remove caracteres especiais
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/gi, '_')
         .substring(0, 40);
     }
 
-    // Garante estrutura HTML5 se for apenas um fragmento
+    // Garante estrutura HTML5 completa se for apenas fragmento
     let finalOutput = cleanedHTML;
     if (!cleanedHTML.toLowerCase().includes('<html')) {
       finalOutput = `<!DOCTYPE html>\n<html lang="pt-br">\n<head>\n<meta charset="UTF-8">\n<title>${fileName}</title>\n<style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style>\n</head>\n<body>\n${cleanedHTML}\n</body>\n</html>`;
     }
 
-    // Dispara o download
     try {
       const blob = new Blob([finalOutput], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -60,88 +248,33 @@ const markdownMatch = content.match(markdownRegex);
       URL.revokeObjectURL(url);
 
       setStatus(`Salvo com sucesso: ${fileName}.html ✅`);
-      setShowButton(true);
+      showButton();
     } catch (err) {
       setStatus('Erro ao gerar arquivo.');
+      showButton();
     }
-  }, []);
+  }
 
-  // Tenta ler automaticamente ao abrir
-  const tryAutoRead = async () => {
+  async function tryAutoRead() {
     try {
       setStatus('Lendo área de transferência...');
       const text = await navigator.clipboard.readText();
       processAndDownload(text);
     } catch (err) {
       setStatus('Aguardando colagem... (Ctrl+V)');
-      setShowButton(true);
+      showButton();
     }
-  };
+  }
 
-  useEffect(() => {
-    // Listener para Ctrl+V manual
-    const handlePaste = (e) => {
-      const text = e.clipboardData.getData('text');
-      processAndDownload(text);
-    };
+  // Listener para Ctrl+V manual
+  window.addEventListener('paste', function(e) {
+    const text = e.clipboardData.getData('text');
+    processAndDownload(text);
+  });
 
-    window.addEventListener('paste', handlePaste);
-    
-    // Pequeno delay para garantir foco antes da leitura automática
-    const timer = setTimeout(() => tryAutoRead(), 800);
+  // Tenta ler automaticamente ao abrir (com pequeno delay para foco)
+  setTimeout(() => tryAutoRead(), 800);
+</script>
 
-    return () => {
-      window.removeEventListener('paste', handlePaste);
-      clearTimeout(timer);
-    };
-  }, [processAndDownload]);
-
-  return (
-    <div className="min-h-screen bg-[#F7F4E9] flex items-center justify-center p-4 font-sans text-slate-800">
-      <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border-4 border-[#E4BAD4] p-8 md:p-12 text-center">
-        
-        {/* Ícone Minimalista */}
-        <div className="w-20 h-20 bg-[#C490D1] rounded-3xl shadow-lg flex items-center justify-center mx-auto mb-8 text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </div>
-
-        <h1 className="text-3xl font-black mb-2 tracking-tight">
-          GlauWeb <span className="text-[#C490D1]">Instant</span>
-        </h1>
-        
-        <p className="text-sm text-slate-500 mb-8 font-medium">
-          Copie o código da IA e abra o app.<br/>O arquivo será gerado e baixado sozinho.
-        </p>
-
-        <div className="bg-[#F6DFEB]/50 border-2 border-[#E4BAD4]/30 rounded-2xl p-4 mb-8">
-          <span className="block text-[10px] font-black text-[#C490D1] uppercase tracking-widest mb-1">Status</span>
-          <p className="font-bold text-sm truncate px-2">{status}</p>
-        </div>
-
-        {showButton && (
-          <button
-            onClick={tryAutoRead}
-            className="w-full bg-[#C490D1] hover:bg-[#b37dc1] text-white font-black py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
-              <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
-            </svg>
-            COLAR E SALVAR AGORA
-          </button>
-        )}
-
-        <div className="mt-12 opacity-40">
-          <div className="w-8 h-1 bg-[#E4BAD4] mx-auto rounded-full mb-2"></div>
-          <p className="text-[10px] font-black uppercase tracking-tighter">
-            Prof. Glauber Santiago — UFSCar
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+</body>
+</html>
