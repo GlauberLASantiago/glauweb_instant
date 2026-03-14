@@ -58,12 +58,17 @@
       line-height: 1.7;
     }
 
+    .textarea-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
     textarea {
       width: 100%;
       height: 160px;
       border: 2px solid #E4BAD4;
       border-radius: 1rem;
-      padding: 14px;
+      padding: 14px 14px 44px 14px;
       font-size: clamp(0.8rem, 3vw, 0.875rem);
       font-family: monospace;
       color: #1e293b;
@@ -71,11 +76,35 @@
       outline: none;
       transition: border-color 0.2s;
       background: #fdfbff;
-      margin-bottom: 16px;
       -webkit-appearance: none;
+      display: block;
     }
     textarea:focus { border-color: #C490D1; }
     textarea::placeholder { color: #b0a0b8; }
+
+    .btn-clear {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: #f1e6f7;
+      color: #9b6bb5;
+      border: none;
+      border-radius: 0.6rem;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-clear:hover { background: #e5d4f0; }
+    .btn-clear:active { transform: scale(0.95); }
 
     .status-box {
       background-color: rgba(246, 223, 235, 0.5);
@@ -101,7 +130,7 @@
       white-space: nowrap;
     }
 
-    .btn {
+    .btn-save {
       width: 100%;
       background-color: #C490D1;
       color: white;
@@ -120,25 +149,27 @@
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-    .btn:hover { background-color: #b37dc1; }
-    .btn:active { transform: scale(0.97); background-color: #a06db0; }
+    .btn-save:hover { background-color: #b37dc1; }
+    .btn-save:active { transform: scale(0.97); background-color: #a06db0; }
 
     .footer {
       margin-top: 28px;
-      opacity: 0.4;
+      opacity: 0.45;
     }
     .footer-line {
       width: 32px;
-      height: 4px;
+      height: 3px;
       background-color: #E4BAD4;
-      margin: 0 auto 8px;
+      margin: 0 auto 10px;
       border-radius: 9999px;
     }
     .footer p {
-      font-size: 11px;
-      font-weight: 900;
+      font-size: 9px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.03em;
+      line-height: 1.8;
+      color: #64748b;
     }
   </style>
 </head>
@@ -161,14 +192,22 @@
     O arquivo será baixado automaticamente.
   </p>
 
-  <textarea id="htmlInput" placeholder="Cole aqui o código HTML gerado pela IA..."></textarea>
+  <div class="textarea-wrapper">
+    <textarea id="htmlInput" placeholder="Cole aqui o código HTML gerado pela IA..."></textarea>
+    <button class="btn-clear" onclick="clearTextarea()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm0 0" clip-rule="evenodd" />
+      </svg>
+      LIMPAR
+    </button>
+  </div>
 
   <div class="status-box">
     <span class="status-label">Status</span>
     <p class="status-text" id="status">Aguardando código...</p>
   </div>
 
-  <button class="btn" onclick="processAndDownload()">
+  <button class="btn-save" onclick="processAndDownload()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
       <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
       <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
@@ -178,7 +217,10 @@
 
   <div class="footer">
     <div class="footer-line"></div>
-    <p>Prof. Glauber Santiago — UFSCar</p>
+    <p>
+      Desenvolvido pelo Professor Glauber Santiago — DAC/UFSCar<br/>
+      servidores.ufscar.br/glauber/ &nbsp;|&nbsp; sites.google.com/view/glauberia
+    </p>
   </div>
 
 </div>
@@ -191,6 +233,12 @@
     var val = textarea.value.trim();
     statusEl.textContent = val ? val.length + ' caracteres prontos para salvar.' : 'Aguardando código...';
   });
+
+  function clearTextarea() {
+    textarea.value = '';
+    statusEl.textContent = 'Aguardando código...';
+    textarea.focus();
+  }
 
   function processAndDownload() {
     var content = textarea.value;
